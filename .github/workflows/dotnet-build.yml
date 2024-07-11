@@ -7,7 +7,7 @@ on:
 jobs:
   sonarqube_analysis:
     name: SonarQube Analysis
-    runs-on: self-hosted 
+    runs-on: self-hosted
     
     steps:
       - uses: actions/checkout@v4
@@ -20,10 +20,15 @@ jobs:
           java-version: 17
           distribution: 'adopt'
           
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '8.0.x'  # Ensure this version matches your project requirements
+
       - name: Cache SonarQube packages
         uses: actions/cache@v2
         with:
-          path: ~/.sonar/cache  # Path updated for Ubuntu
+          path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
           
@@ -31,14 +36,14 @@ jobs:
         id: cache-sonar-scanner
         uses: actions/cache@v2
         with:
-          path: ./.sonar/scanner  # Path updated for Ubuntu
+          path: ./.sonar/scanner
           key: ${{ runner.os }}-sonar-scanner-${{ hashFiles('**/*.cs') }}
           restore-keys: ${{ runner.os }}-sonar-scanner
           
       - name: Install SonarQube scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         run: |
-          mkdir -p ./.sonar/scanner  # Command updated for Ubuntu
+          mkdir -p ./.sonar/scanner
           dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
           
       - name: Build and analyze
@@ -49,7 +54,7 @@ jobs:
 
   dotnet_build:
     needs: sonarqube_analysis
-    runs-on: self-hosted  # Changed to Ubuntu based runner
+    runs-on: self-hosted
 
     steps:
     - uses: actions/checkout@v3
@@ -58,7 +63,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '6.0.x'  # Updated to the latest LTS version of .NET
+        dotnet-version: '8.0.x'
 
     - name: Restore dependencies
       run: dotnet restore
