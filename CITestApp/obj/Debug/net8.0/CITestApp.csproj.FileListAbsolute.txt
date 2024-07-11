@@ -1,0 +1,11 @@
+D:\My Data\Projects\CITestApp\CITestApp\bin\Debug\net8.0\CITestApp.deps.json
+D:\My Data\Projects\CITestApp\CITestApp\bin\Debug\net8.0\CITestApp.dll
+D:\My Data\Projects\CITestApp\CITestApp\bin\Debug\net8.0\CITestApp.pdb
+D:\My Data\Projects\CITestApp\CITestApp\obj\Debug\net8.0\CITestApp.GeneratedMSBuildEditorConfig.editorconfig
+D:\My Data\Projects\CITestApp\CITestApp\obj\Debug\net8.0\CITestApp.AssemblyInfoInputs.cache
+D:\My Data\Projects\CITestApp\CITestApp\obj\Debug\net8.0\CITestApp.AssemblyInfo.cs
+D:\My Data\Projects\CITestApp\CITestApp\obj\Debug\net8.0\CITestApp.csproj.CoreCompileInputs.cache
+D:\My Data\Projects\CITestApp\CITestApp\obj\Debug\net8.0\CITestApp.dll
+D:\My Data\Projects\CITestApp\CITestApp\obj\Debug\net8.0\refint\CITestApp.dll
+D:\My Data\Projects\CITestApp\CITestApp\obj\Debug\net8.0\CITestApp.pdb
+D:\My Data\Projects\CITestApp\CITestApp\obj\Debug\net8.0\ref\CITestApp.dll
