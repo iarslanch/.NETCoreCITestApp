@@ -1,7 +1,8 @@
 name: .NET Core Build and SonarQube Analysis
 
 on:
-  push:
+  #push:
+    [push, workflow_dispatch]
     branches: [ main ]
 
 jobs:
