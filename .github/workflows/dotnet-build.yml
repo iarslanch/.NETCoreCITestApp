@@ -3,22 +3,23 @@ name: .NET Core Build and SonarQube Analysis
 on:
   push:
     branches: [ main ]
+
 jobs:
   sonarqube_analysis:
     name: SonarQube Analysis
     runs-on: self-hosted
-    
+
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          
+
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
           java-version: 17
           distribution: 'adopt'
-          
+
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v2
         with:
@@ -30,7 +31,7 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-          
+
       - name: Cache SonarQube scanner
         id: cache-sonar-scanner
         uses: actions/cache@v2
@@ -38,18 +39,22 @@ jobs:
           path: ./.sonar/scanner
           key: ${{ runner.os }}-sonar-scanner-${{ hashFiles('**/*.cs') }}
           restore-keys: ${{ runner.os }}-sonar-scanner
-          
+
       - name: Install SonarQube scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         run: |
           mkdir -p ./.sonar/scanner
           dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
-          
+
       - name: Build and analyze
         run: |
           ./.sonar/scanner/dotnet-sonarscanner begin /k:"CIAppTest" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           dotnet build
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
+      - name: Upload SonarQube report to Nexus
+        run: |
+          curl -v -u ${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }} --upload-file ./.sonar/report-task.txt ${{ secrets.NEXUS_URL }}sonar-report/report-task.txt
 
   dotnet_build:
     needs: sonarqube_analysis
@@ -81,3 +86,7 @@ jobs:
 
     - name: Publish
       run: dotnet publish --no-restore -c Release -o ./publish
+
+    - name: Upload Test Results to Nexus
+      run: |
+        curl -v -u ${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }} --upload-file ./CITestApp.Tests/TestResults/test_results.trx ${{ secrets.NEXUS_URL }}test-results/test_results.trx
