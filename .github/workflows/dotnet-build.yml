@@ -52,9 +52,17 @@ jobs:
           dotnet build
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
+      - name: List directory contents for debugging
+        run: ls -R ./
+
       - name: Upload SonarQube report to Nexus
         run: |
-          curl -v -u ${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }} --upload-file ./.sonar/report-task.txt ${{ secrets.NEXUS_URL }}sonar-report/report-task.txt
+          if [ -f ./.sonar/report-task.txt ]; then
+            curl -v -u ${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }} --upload-file ./.sonar/report-task.txt ${{ secrets.NEXUS_URL }}sonar-report/report-task.txt
+          else
+            echo "SonarQube report file not found"
+            exit 1
+          fi
 
   dotnet_build:
     needs: sonarqube_analysis
