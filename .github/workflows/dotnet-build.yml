@@ -52,8 +52,8 @@ jobs:
           dotnet build
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
-      - name: List directory contents for debugging
-        run: ls -R ./
+      - name: List SonarQube directory contents for debugging
+        run: ls -R ./.sonar
 
       - name: Upload SonarQube report to Nexus
         run: |
