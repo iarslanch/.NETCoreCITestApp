@@ -1,9 +1,7 @@
 name: .NET Core Build and SonarQube Analysis
-
 on:
   push:
     branches: [ main ]
-
 jobs:
   sonarqube_analysis:
     name: SonarQube Analysis
@@ -45,25 +43,12 @@ jobs:
         run: |
           mkdir -p ./.sonar/scanner
           dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
-
+          
       - name: Build and analyze
         run: |
           ./.sonar/scanner/dotnet-sonarscanner begin /k:"CIAppTest" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           dotnet build
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-
-      - name: List SonarQube directory contents for debugging
-        run: ls -R ./.sonar
-
-      - name: Upload SonarQube report to Nexus
-        run: |
-          if [ -f ./.sonar/report-task.txt ]; then
-            curl -v -u ${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }} --upload-file ./.sonar/report-task.txt ${{ secrets.NEXUS_URL }}sonar-report/report-task.txt
-          else
-            echo "SonarQube report file not found"
-            exit 1
-          fi
-
   dotnet_build:
     needs: sonarqube_analysis
     runs-on: self-hosted
@@ -71,30 +56,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       name: Checkout code
-
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '8.0.x'
-
     - name: Restore dependencies
       run: dotnet restore
-
     - name: Run tests
       run: dotnet test --logger "trx;LogFileName=test_results.trx" ./CITestApp.Tests/CITestApp.Tests.csproj
-
     - name: Publish Test Results
       uses: actions/upload-artifact@v2
       with:
         name: test-results
         path: '**/TestResults/*.trx'
-
-    - name: Build
-      run: dotnet build --no-restore -c Release
-
-    - name: Publish
-      run: dotnet publish --no-restore -c Release -o ./publish
-
-    - name: Upload Test Results to Nexus
-      run: |
-        curl -v -u ${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }} --upload-file ./CITestApp.Tests/TestResults/test_results.trx ${{ secrets.NEXUS_URL }}test-results/test_results.trx
